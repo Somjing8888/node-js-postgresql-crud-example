@@ -1,7 +1,7 @@
 provider "aws" {
-  region = var.ap-southeast-1
-  access_key = xxxxx
-  secret_key = xxxxx
+  region     = "ap-southeast-1"
+  access_key = "xxxxx"
+  secret_key = "xxxxx"
 }
 
 # สร้าง VPC
@@ -21,7 +21,7 @@ resource "aws_internet_gateway" "my_igw" {
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = aws_vpc.my_vpc.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "${var.ap-southeast-1}a"
+  availability_zone       = "ap-southeast-1a"
   map_public_ip_on_launch = true
   tags = {
     Name = "public_subnet"
@@ -31,7 +31,7 @@ resource "aws_subnet" "public_subnet" {
 resource "aws_subnet" "private_subnet" {
   vpc_id                  = aws_vpc.my_vpc.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = "${var.ap-southeast-1}a"
+  availability_zone       = "ap-southeast-1a"
   tags = {
     Name = "private_subnet"
   }
@@ -124,7 +124,7 @@ resource "aws_db_instance" "my_rds_instance" {
   engine               = "postgres"
   engine_version       = "12.5"
   instance_class       = "db.t3.micro"
-  name                 = "my_rds_db"
+  identifier           = "my-rds-db"
   username             = "admin"
   password             = "test12345"
   db_subnet_group_name = aws_db_subnet_group.my_db_subnet_group.name
@@ -194,8 +194,15 @@ resource "aws_eks_node_group" "my_node_group" {
   node_group_name = "my_node_group"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = [aws_subnet.public_subnet.id]
-  instance_type   = "t3.xlarge"
+  instance_types  = ["t3.xlarge"]
   disk_size       = 50
+  
+  scaling_config {
+  min_size = 1
+  max_size = 2
+  desired_size = 1
+}
+
 }
 
 # ตรวจสอบว่าข้อมูล
